@@ -7,6 +7,14 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import scala.Function0;
+import scala.runtime.AbstractFunction0;
+import scala.tools.nsc.interpreter.Completion;
+import scala.tools.nsc.interpreter.IMain;
+import scala.tools.nsc.interpreter.JLineReader;
+import scala.tools.nsc.interpreter.JLineCompletion;
+import scala.tools.nsc.Settings;
+
 public class Client {
     private static final InetAddress LOCALHOST = getLocalHostAddress();
 
@@ -53,15 +61,29 @@ public class Client {
             }
         }).start();
 
+        // JLineReader expects `lazy val completion`
+        Function0<Completion> completion = new AbstractFunction0<Completion>() {
+            @Override
+            public Completion apply() {
+                Settings settings = new Settings();
+                IMain intp = new IMain(settings);
+                return new JLineCompletion(intp);
+            }
+        };
+        JLineReader reader = new JLineReader(completion);
+        String line;
+
         boolean closed = false;
         while (!closed) {
-            try {
-                String line = System.console().readLine();
-                out.write(line.getBytes());
-                out.write('\n');
-                out.flush();
-            } catch (Exception e) {
-                closed = true;
+
+            while((line = reader.readOneLine("")).length() > 1) {
+                try {
+                    out.write(line.getBytes());
+                    out.write('\n');
+                    out.flush();
+                } catch (Exception e) {
+                    closed = true;
+                }
             }
         }
 

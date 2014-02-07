@@ -19,6 +19,7 @@ scalive-1.0/
   scala-compiler-2.10.2.jar
   scala-reflect-2.10.2.jar
 
+  jline-2.10.3.jar
   scala-library-2.10.3.jar
   scala-compiler-2.10.3.jar
   scala-reflect-2.10.3.jar
